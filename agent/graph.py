@@ -8,7 +8,6 @@ from browser.automation import JobBrowser
 import os
 
 # App Data State
-# ─────────────────────────────────────────────────────────────────────────────
 class AgentState(TypedDict):
     job_id:             Optional[int]
     job_url:            str
@@ -21,9 +20,8 @@ class AgentState(TypedDict):
     application_status: str  # pending → running → submitted / insufficient_knowledge / failed / backlog
 
 # Grab next job
-# ─────────────────────────────────────────────────────────────────────────────
 def fetch_job_data(state: AgentState):
-    print("\n── Node: fetch_job ──────────────────────────────────────")
+    print("\n Node: fetch_job")
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("""
@@ -57,7 +55,6 @@ def fetch_job_data(state: AgentState):
     }
 
 # Lock job
-# ─────────────────────────────────────────────────────────────────────────────
 def mark_running(state: AgentState):
     if not state.get("job_id"):
         return state
@@ -70,9 +67,8 @@ def mark_running(state: AgentState):
     return state
 
 # Automate browser flow
-# ─────────────────────────────────────────────────────────────────────────────
 async def run_automation(state: AgentState):
-    print(f"\n── Node: run_automation ─────────────────────────────────")
+    print(f"\n Node: run_automation")
     print(f"Target: {state['job_url']}")
 
     if not state.get("job_id"):
@@ -89,22 +85,22 @@ async def run_automation(state: AgentState):
         await bot.start(headless=False)
         await asyncio.sleep(2)
 
-        # Look up job site ─────────────────────────────────
+        # Look up job site
         ats_type = await bot.detect_ats(state["job_url"])
         print(f"Detected ATS: {ats_type}")
 
-        # Ensure job is open ──────────────────────────────
+        # Ensure job is open
         is_open, reason = await bot.check_job_is_open()
         if not is_open:
             print(f"Job is closed: {reason}")
             return {**state, "application_status": "failed", "fail_reason": reason}
 
-        # Learn about the role ───────────────────────────────
+        # Learn about the role 
         print("Scraping job description...")
         job_description = await bot.scrape_job_description()
         job_context = f"Applying to {state['company_name']}. Role context: {job_description[:2000]}"
 
-        # Prep resume and letter ────────────────────────────────────────
+        # Prep resume and letter 
         static_resume_path = os.path.abspath("demo/ShivaniResume.pdf")
         os.makedirs("temp", exist_ok=True)
         cover_letter_path = os.path.abspath("temp/cover_letter.txt")
@@ -119,7 +115,7 @@ async def run_automation(state: AgentState):
         cover_letter_content = fallback_cover_letter
         try:
             print("Attempting to generate personalized cover letter with Gemini...")
-            job_title = "the open position" # Generic since we pull dynamically
+            job_title = "the open position" 
             generated_cl = filler.llm.generate_cover_letter(
                 state['candidate_data'].get('full_name', 'Applicant'),
                 job_title,
@@ -129,12 +125,12 @@ async def run_automation(state: AgentState):
             
             # Verify letter generated OK
             if generated_cl and "An error occurred" not in generated_cl:
-                print("  ✅ Successfully generated tailored cover letter.")
+                print(" Successfully generated tailored cover letter.")
                 cover_letter_content = generated_cl
             else:
-                print("  ⚠️ Gemini returned an error. Using static cover letter.")
+                print(" Gemini returned an error. Using static cover letter.")
         except Exception as e:
-            print(f"  ⚠️ API Rate Limit hit or Generation failed ({e}). Falling back to static cover letter.")
+            print(f" API Rate Limit hit or Generation failed ({e}). Falling back to static cover letter.")
             
         with open(cover_letter_path, "w") as f:
             f.write(cover_letter_content)
@@ -153,18 +149,18 @@ async def run_automation(state: AgentState):
             if tailored_json and isinstance(tailored_json, dict) and 'summary' in tailored_json:
                 generated_pdf_path = os.path.abspath("temp/tailored_resume.pdf")
                 build_tailored_pdf(state['candidate_data'], tailored_json, generated_pdf_path)
-                print("  ✅ Successfully tailored and built resume PDF format.")
+                print(" Successfully tailored and built resume PDF format.")
                 final_resume_path = generated_pdf_path
             else:
-                print("  ⚠️ Gemini JSON structure issue. Using static resume.")
+                print(" Gemini JSON structure issue. Using static resume.")
         except Exception as e:
-            print(f"  ⚠️ API Rate Limit hit or Resume generation failed ({e}). Falling back to static resume.")
+            print(f" API Rate Limit hit or Resume generation failed ({e}). Falling back to static resume.")
 
         # Save docs for later
         state["custom_answers"]["_resume_path"] = final_resume_path
         state["custom_answers"]["_cover_letter_path"] = cover_letter_path
 
-        # Hit apply ───────────────────────────────────────────────
+        # Hit apply 
         print("Clicking apply button...")
         clicked = await bot.click_apply_button()
         if not clicked:
@@ -173,9 +169,9 @@ async def run_automation(state: AgentState):
         await asyncio.sleep(2)
 
         # Go through form steps
-        # Supports up to 10 steps (LinkedIn Easy Apply usually has 3–5)
+        # Supports up to 10 steps 
         MAX_STEPS = 10
-        hitl_budget = 3  # max HITL rounds before giving up on this job
+        hitl_budget = 3  
 
         for step in range(MAX_STEPS):
             print(f"\n  ── Form step {step + 1} ──")
@@ -225,7 +221,7 @@ async def run_automation(state: AgentState):
 
             if action == 'submitted':
                 status = "submitted"
-                print("\n✅ Application submitted successfully!")
+                print("\n Application submitted successfully!")
                 await bot.dismiss_modal_if_open()
                 break
             elif action == 'review':
@@ -246,7 +242,7 @@ async def run_automation(state: AgentState):
             status = "insufficient_knowledge" if unanswered_labels else "failed"
 
     except Exception as e:
-        print(f"\n❌ Automation error: {e}")
+        print(f"\n Automation error: {e}")
         status = "failed"
         fail_reason = str(e)
     finally:
@@ -270,9 +266,8 @@ async def run_automation(state: AgentState):
     }
 
 # Record to DB
-# ─────────────────────────────────────────────────────────────────────────────
 def record_result(state: AgentState):
-    print(f"\n── Node: record_result ──────────────────────────────────")
+    print(f"\n Node: record_result")
     if not state.get("job_id"):
         return {**state, "application_status": "done"}
 
@@ -308,14 +303,12 @@ def record_result(state: AgentState):
     return {**state, "application_status": "done"}
 
 # Workflow rules
-# ─────────────────────────────────────────────────────────────────────────────
 def route_after_fetch(state: AgentState):
     if state["application_status"] == "empty_queue":
         return "empty"
     return "process"
 
 # Configure app sequence
-# ─────────────────────────────────────────────────────────────────────────────
 workflow = StateGraph(AgentState)
 
 workflow.add_node("fetcher",    fetch_job_data)
