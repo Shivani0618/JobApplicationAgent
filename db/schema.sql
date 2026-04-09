@@ -7,10 +7,10 @@ CREATE TABLE candidates (
     full_name VARCHAR(255),
     email VARCHAR(255),
     phone VARCHAR(20),
-    resume_path TEXT, -- Local path to your PDF resume
+    resume_path TEXT, 
     portfolio_url TEXT,
     github_url TEXT,
-    work_history JSONB, -- Stores roles/dates as JSON
+    work_history JSONB, 
     education JSONB,
     skills JSONB
 );
