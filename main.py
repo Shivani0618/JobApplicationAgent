@@ -27,14 +27,14 @@ async def run_agent():
         final_status = final_state.get("application_status", "unknown")
 
         if final_status in ["empty_queue", "starting", "done"] and not final_state.get("job_id"):
-            print("\n✅ Queue is empty. All jobs processed.")
+            print("\n Queue is empty. All jobs processed.")
             break
 
         processed += 1
         company = final_state.get("company_name", "Unknown")
         url = final_state.get("job_url", "")
 
-        print(f"\n── Result ──────────────────────────────────────────────")
+        print(f"\n Result")
         print(f"  Company : {company}")
         print(f"  URL     : {url}")
         print(f"  Status  : {final_status}")
