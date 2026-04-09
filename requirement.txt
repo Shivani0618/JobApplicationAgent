@@ -1,0 +1,8 @@
+langchain
+langgraph
+playwright
+psycopg2-binary
+google-generativeai
+python-dotenv
+pypdf
+fpdf2
