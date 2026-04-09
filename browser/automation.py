@@ -347,7 +347,7 @@ class JobBrowser:
             if field_type in ['text', 'email', 'tel', 'url', 'number', 'textarea']:
                 await locator.wait_for(state="visible", timeout=4000)
                 await locator.fill(str(value))
-                print(f"  ✅ Filled '{label}' = '{str(value)[:40]}'")
+                print(f" Filled '{label}' = '{str(value)[:40]}'")
 
             elif field_type == 'select':
                 await locator.wait_for(state="visible", timeout=4000)
@@ -367,7 +367,7 @@ class JobBrowser:
                         await locator.select_option(label=str(value))
                     except:
                         await locator.select_option(index=1)  # Just pick the first choice
-                print(f"  ✅ Selected '{label}' = '{value}'")
+                print(f" Selected '{label}' = '{value}'")
 
             elif field_type == 'radio':
                 # Find and click the matching radio dot
@@ -380,21 +380,21 @@ class JobBrowser:
                     # Backup click plan
                     lbl = self.page.locator(f'label:has-text("{value}")').first
                     await lbl.click()
-                print(f"  ✅ Radio '{label}' = '{value}'")
+                print(f" Radio '{label}' = '{value}'")
 
             elif field_type == 'checkbox':
                 if str(value).lower() in ['yes', 'true', '1', 'checked']:
                     await locator.check()
-                    print(f"  ✅ Checked '{label}'")
+                    print(f" Checked '{label}'")
 
             elif field_type == 'file':
                 await locator.set_input_files(str(value))
-                print(f"  ✅ Uploaded file for '{label}'")
+                print(f" Uploaded file for '{label}'")
 
             return True
 
         except Exception as e:
-            print(f"  ❌ Could not fill '{label}' (type={field_type}): {e}")
+            print(f" Could not fill '{label}' (type={field_type}): {e}")
             return False
 
     async def get_modal_step_info(self):
