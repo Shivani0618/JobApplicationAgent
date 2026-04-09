@@ -70,6 +70,8 @@ def seed_db():
         {"url": "https://in.indeed.com/viewjob?jk=f7fcd484e6bbd633&from=shareddesktop_copy", "company": "Datafoundry", "ats": "Indeed"},
         {"url": "https://unstop.com/o/7gjco4y?lb=uV2mPBQ2&utm_medium=Share&utm_source=internships&utm_campaign=Shivasha1169", "company": "Rhosigma Technologies Pvt. Ltd.", "ats": "Unstop"},
         {"url": "https://www.linkedin.com/jobs/view/4389858122", "company": "AARC Environmental", "ats": "LinkedIn"},
+        {"url": "https://www.linkedin.com/jobs/view/4383007060", "company": "ARK Solutions, Inc.", "ats": "LinkedIn"},
+        {"url": "https://in.indeed.com/viewjob?jk=237e8a4133b9b650&from=shareddesktop_copy", "company": "Aidaptive", "ats": "Indeed"}
     ]
 
     for job in demo_jobs:
