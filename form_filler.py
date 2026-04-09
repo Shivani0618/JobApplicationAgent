@@ -195,7 +195,7 @@ class SmartFiller:
             return {}
 
         print("\n" + "="*55)
-        print("🚨  HUMAN INPUT REQUIRED")
+        print("HUMAN INPUT REQUIRED!!")
         print("="*55)
         print("The agent could not answer the following fields:")
         for i, field in enumerate(unanswered_fields, 1):
@@ -219,12 +219,12 @@ class SmartFiller:
                     answers[label] = val
                     custom_answers[label.lower()] = val
                     self._save_new_custom_answer(label.lower(), val)
-                    print(f"  ✅ Saved '{label}' = '{val}'")
+                    print(f" Saved '{label}' = '{val}'")
                 else:
-                    print(f"  ⏭️  Skipped '{label}'")
+                    print(f" Skipped '{label}'")
             except asyncio.TimeoutError:
-                print(f"\n  ⏰ Timeout on '{label}'. Moving on.")
-                break  # Stop asking after first timeout — don't wait N×30s
+                print(f"\n Timeout on '{label}'. Moving on.")
+                break  
 
         print("="*55 + "\n")
         return answers
@@ -236,5 +236,5 @@ class SmartFiller:
             ok = await browser.fill_field(field, value)
             if ok:
                 success += 1
-            await asyncio.sleep(0.3)  # Small pause to look human
+            await asyncio.sleep(0.3)  # Small pause 
         return success
